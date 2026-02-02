@@ -2,265 +2,206 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS v7.2 | Cyber Pro Edition</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <style>
-        :root {
-            --bg: #050a15;
-            --primary: #3b82f6;
-            --accent: #93c5fd;
-            --text: #f8fafc;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.1);
-            --radius: 32px;
-        }
-
-        /* --- MESH GRADIENT BG --- */
-        .mesh-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background-color: var(--bg); overflow: hidden; }
-        .mesh-bg::before, .mesh-bg::after { content: ""; position: absolute; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.15; z-index: -1; animation: move 20s infinite alternate; }
-        .mesh-bg::before { background: var(--primary); top: -10%; left: -10%; }
-        .mesh-bg::after { background: #6366f1; bottom: -10%; right: -10%; animation-delay: -10s; }
-        @keyframes move { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(20%, 30%) scale(1.2); } 100% { transform: translate(-10%, 10%) scale(1); } }
-
-        /* --- PRELOADER --- */
-        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 999999; transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1); }
-        #preloader.loaded { transform: translateY(-100%); }
-        .loader-content { text-align: center; width: 250px; }
-        .loader-logo { font-size: 2.5rem; font-weight: 900; color: var(--text); margin-bottom: 20px; letter-spacing: 5px; }
-        .loader-bar-container { width: 100%; height: 2px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
-        #loader-progress { width: 0%; height: 100%; background: var(--primary); transition: width 0.4s ease; }
-        #loader-percentage { font-size: 14px; font-weight: 600; color: var(--primary); opacity: 0.8; }
-
-        /* --- GENEL --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: none; }
-        body { background: var(--bg); color: var(--text); overflow-x: hidden; overflow-y: hidden; transition: background 0.5s; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 25px; }
-
-        /* --- CURSOR --- */
-        #cursor { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000; transition: transform 0.1s ease; }
-        #cursor-follower { width: 40px; height: 40px; border: 1.5px solid var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.2s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-
-        header { position: fixed; top: 0; width: 100%; padding: 25px 0; backdrop-filter: blur(25px); z-index: 1000; border-bottom: 1px solid var(--border); }
-        nav { display: flex; justify-content: space-between; align-items: center; }
-        .nav-links { display: flex; list-style: none; gap: 30px; }
-        .nav-links a { color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; opacity: 0.6; transition: 0.3s; }
-        .nav-links a:hover { opacity: 1; color: var(--accent); }
-
-        /* --- HERO --- */
-        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; }
-        h1 { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; line-height: 0.9; letter-spacing: -3px; min-height: 1.2em; }
-        .hero-meta { position: absolute; font-size: 10px; font-weight: 700; letter-spacing: 2px; opacity: 0.3; color: var(--text); text-transform: uppercase; }
-        .meta-tl { top: 120px; left: 25px; }
-        .meta-tr { top: 120px; right: 25px; }
-
-        /* --- TECH SLIDER --- */
-        .tech-slider { background: var(--glass); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 15px 0; overflow: hidden; white-space: nowrap; margin-bottom: 50px; }
-        .slider-track { display: inline-block; animation: scroll-text 30s linear infinite; }
-        .slider-track span { font-size: 12px; font-weight: 800; margin: 0 40px; letter-spacing: 2px; opacity: 0.4; }
-        @keyframes scroll-text { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-        /* --- BENTO --- */
-        .bento { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 50px 0; }
-        .bento-card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: var(--radius); position: relative; overflow: hidden; min-height: 300px; display: flex; flex-direction: column; justify-content: flex-end; backdrop-filter: blur(5px); }
-        .card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.1; z-index: -1; transition: 0.7s; }
-        .wide { grid-column: span 2; }
-
-        /* --- SERVICES GRID --- */
-        .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding: 100px 0; }
-        .service-item { padding: 30px; border-left: 2px solid var(--primary); background: rgba(255,255,255,0.01); }
-        .service-item i { font-size: 24px; color: var(--primary); margin-bottom: 20px; }
-        .service-item h4 { font-size: 18px; margin-bottom: 12px; font-weight: 800; }
-        .service-item p { font-size: 14px; opacity: 0.5; line-height: 1.6; }
-
-        /* --- REVEAL --- */
-        .reveal { opacity: 0; transform: translateY(30px); transition: 1s cubic-bezier(0.2, 1, 0.2, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-
-        /* --- STATUS WIDGET --- */
-        .status-widget { position: fixed; bottom: 30px; right: 30px; background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--border); padding: 10px 20px; border-radius: 100px; display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 800; z-index: 100; }
-        .status-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 10px #22c55e; animation: pulse-dot 2s infinite; }
-        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        @media (max-width: 768px) { .nav-links, #cursor, #cursor-follower, .hero-meta { display: none; } .bento, .services-grid { grid-template-columns: 1fr; } .wide { grid-column: span 1; } }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#e8d5c4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Our Timeless Journey - Bizim Sonsuz Yolculuğumuz</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;600&family=Lora:wght@400;500;600&family=Great+Vibes&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <div class="mesh-bg"></div>
-    
-    <div id="preloader">
-        <div class="loader-content">
-            <div class="loader-logo">NEXUS.</div>
-            <div class="loader-bar-container">
-                <div id="loader-progress"></div>
-            </div>
-            <div id="loader-percentage">0%</div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Bizim Hikayemiz</div>
+            <ul id="navMenu" class="nav-menu">
+                <li><a href="#home" class="nav-link">Anasayfa</a></li>
+                <li><a href="#about" class="nav-link">Hikaye</a></li>
+                <li><a href="#gallery" class="nav-link">Galeri</a></li>
+                <li><a href="#moments" class="nav-link">Anlar</a></li>
+                <li><a href="#letter" class="nav-link">Mesajlar</a></li>
+            </ul>
+            <button type="button" class="hamburger" aria-label="Menüyü aç veya kapat" aria-expanded="false" aria-controls="navMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
-    </div>
+    </nav>
 
-    <div id="cursor"></div>
-    <div id="cursor-follower"></div>
-
-    <header>
-        <div class="container">
-            <nav>
-                <div style="font-weight: 900; font-size: 28px; letter-spacing: -1px;">NEXUS.</div>
-                <ul class="nav-links">
-                    <li><a href="#home">GİRİŞ</a></li>
-                    <li><a href="#about">VİZYON</a></li>
-                    <li><a href="#services">TEKNOLOJİ</a></li>
-                </ul>
-                <a href="#contact" style="background:var(--primary); color:white; padding: 10px 22px; border-radius: 50px; text-decoration: none; font-size: 12px; font-weight: 800;">ERİŞİM SAĞLA</a>
-            </nav>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-background"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Bizim Sonsuz Yolculuğumuz</h1>
+            <p class="hero-subtitle">Seninle geçen her an, kıymetli bir anıya dönüşen bir yer</p>
+            <button class="cta-button" onclick="document.getElementById('letter').scrollIntoView({behavior: 'smooth'})">Mektubumu Oku</button>
         </div>
-    </header>
+    </section>
 
-    <main class="container">
-        <section class="hero" id="home">
-            <div class="hero-meta meta-tl">LOC: 41.0082° N / 28.9784° E</div>
-            <div class="hero-meta meta-tr">BUILD: v7.2.0-STABLE</div>
-            <h1 id="hero-title"></h1>
-            <p class="reveal" style="margin-top: 30px; opacity: 0.6; max-width: 600px; font-size: 18px;">Yeni nesil dijital mimari ve yapay zeka entegrasyonu.</p>
-        </section>
-
-        <div class="tech-slider">
-            <div class="slider-track">
-                <span>ARTIFICIAL INTELLIGENCE</span> <span>•</span> <span>NEURAL NETWORKS</span> <span>•</span> <span>CYBER SECURITY</span> <span>•</span> <span>UI/UX DESIGN</span> <span>•</span> <span>QUANTUM COMPUTING</span> <span>•</span> <span>BLOCKCHAIN</span> <span>•</span>
-                <span>ARTIFICIAL INTELLIGENCE</span> <span>•</span> <span>NEURAL NETWORKS</span> <span>•</span> <span>CYBER SECURITY</span> <span>•</span> <span>UI/UX DESIGN</span> <span>•</span> <span>QUANTUM COMPUTING</span> <span>•</span> <span>BLOCKCHAIN</span> <span>•</span>
-            </div>
-        </div>
-
-        <section id="about">
-            <div class="bento">
-                <div class="bento-card wide reveal">
-                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800" class="card-img">
-                    <h3>Abstrakt Mimari</h3>
-                    <p style="opacity: 0.5;">Fütüristik estetikle harmanlanmış temiz kod yapısı.</p>
-                </div>
-                <div class="bento-card reveal">
-                    <h3>Çekirdek Hız</h3>
-                    <p style="opacity: 0.5;">Milisaniyelik yanıt süreleri.</p>
-                </div>
-                <div class="bento-card reveal">
-                    <h3>Adaptif Yapı</h3>
-                    <p style="opacity: 0.5;">Her ekrana uyumlu tasarım.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="services" class="services-grid">
-            <div class="service-item reveal">
-                <i class="fa-solid fa-microchip"></i>
-                <h4>İleri Algoritma</h4>
-                <p>Verilerinizi en hızlı şekilde işleyen Nexus v7.2 özel motoru.</p>
-            </div>
-            <div class="service-item reveal">
-                <i class="fa-solid fa-shield-halved"></i>
-                <h4>Güvenli Ağ</h4>
-                <p>Uçtan uca şifrelenmiş, dış tehditlere kapalı fütüristik altyapı.</p>
-            </div>
-            <div class="service-item reveal">
-                <i class="fa-solid fa-globe"></i>
-                <h4>Global Erişim</h4>
-                <p>Dünyanın her noktasından kesintisiz ve senkronize veri akışı.</p>
-            </div>
-        </section>
-    </main>
-
-    <div class="status-widget">
-        <div class="status-dot"></div>
-        <span>SYSTEM ONLINE: 100% UP</span>
-    </div>
-
-    <script>
-        // 1. SCRAMBLE ENGINE
-        class TextScramble {
-            constructor(el) {
-                this.el = el;
-                this.chars = '!<>-_\\/[]{}—=+*^?#________';
-                this.update = this.update.bind(this);
-            }
-            setText(newText) {
-                const oldText = this.el.innerText;
-                const length = Math.max(oldText.length, newText.length);
-                const promise = new Promise((resolve) => this.resolve = resolve);
-                this.queue = [];
-                for (let i = 0; i < length; i++) {
-                    const from = oldText[i] || '';
-                    const to = newText[i] || '';
-                    const start = Math.floor(Math.random() * 40);
-                    const end = start + Math.floor(Math.random() * 40);
-                    this.queue.push({ from, to, start, end });
-                }
-                cancelAnimationFrame(this.frameRequest);
-                this.frame = 0;
-                this.update();
-                return promise;
-            }
-            update() {
-                let output = '';
-                let complete = 0;
-                for (let i = 0, n = this.queue.length; i < n; i++) {
-                    let { from, to, start, end, char } = this.queue[i];
-                    if (this.frame >= end) { complete++; output += to; } 
-                    else if (this.frame >= start) {
-                        if (!char || Math.random() < 0.28) { char = this.randomChar(); this.queue[i].char = char; }
-                        output += `<span style="color:var(--primary)">${char}</span>`;
-                    } else { output += from; }
-                }
-                this.el.innerHTML = output;
-                if (complete === this.queue.length) { this.resolve(); } 
-                else { this.frameRequest = requestAnimationFrame(this.update); this.frame++; }
-            }
-            randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
-        }
-
-        // 2. INITIALIZATION
-        window.addEventListener('load', () => {
-            const preloader = document.getElementById('preloader');
-            const progressBar = document.getElementById('loader-progress');
-            const percentageText = document.getElementById('loader-percentage');
+    <!-- Our Story Section -->
+    <section class="story" id="about">
+        <div class="story-container">
+            <h2 class="section-title">Bizim Hikayemiz</h2>
             
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 20;
-                if (progress > 100) progress = 100;
-                if(progressBar) progressBar.style.width = `${progress}%`;
-                if(percentageText) percentageText.innerText = `${Math.floor(progress)}%`;
+            <div class="story-content">
+                <!-- Timeline -->
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2023</div>
+                            <div class="timeline-title">Başlangıç</div>
+                            <p class="timeline-text">Gözlerimiz ilk kez buluştuğunda, sanki dünya durdu ve zaman bizim için yavaşladı. Seninle aynı gökyüzü altında nefes almak, hayatın en güzel hediyesiymiş. Hiç hesapta yokken kalbime düşen bu koca aşk, işte tam o saniyede başladı...</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2024</div>
+                            <div class="timeline-title">İlk Macera</div>
+                            <p class="timeline-text">Seninle geçen bir yıl... Adımladığımız her yol seninle anlam kazandı. Elini her tuttuğumda o ilk günkü heyecanı ama en çok da o huzurlu uyumu hissettim. Bu macera hayatımın en güzel hikayesi.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025</div>
+                            <div class="timeline-title">Birlikte Büyüyoruz</div>
+                            <p class="timeline-text">Bu yıl, birbirimizi değiştirmeye çalışmadan, olduğumuz gibi severek olgunlaştık. Birlikte verdiğimiz her karar bizi daha güzel bir yere taşıdı. 2025 bizim için sadece bir takvim yılı değil, aşkımızın kök saldığı ve sarsılmaz bir temel attığı o özel zaman dilimi olarak kalacak.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker timeline-marker-final"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2026</div>
+                            <div class="timeline-title">Sonsuza Dek</div>
+                            <p class="timeline-text">"Üçüncü yılımıza doğru yürürken, seninle yaşlanma fikri kalbimin en güzel ihtimali oldu. Hayatımı senin varlığınla temize çekiyorum. Şimdi en güzel bölümün ilk sayfasını açıyoruz; seninle sonsuzluğa, huzura ve en gerçek aşkımıza... İşte şimdi her şey yeniden başlıyor."</p>
+                        </div>
+                    </div>
+                </div>
 
-                if (progress === 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        preloader.classList.add('loaded');
-                        document.body.style.overflowY = 'auto';
-                        
-                        const el = document.getElementById('hero-title');
-                        const fx = new TextScramble(el);
-                        fx.setText("GELECEĞİ TASARLA");
-                    }, 600);
-                }
-            }, 40);
-        });
+                <!-- Story Cards -->
+                <div class="story-cards">
+                    <div class="story-card">
+                            <img loading="lazy" src="images/WhatsApp Image 2026-01-30 at 19.59.13 (2).jpeg" alt="Sabah Ritualleri"
+                                data-srcset="images/WhatsApp Image 2026-01-30 at 19.59.13 (2)-480w.jpeg 480w, images/WhatsApp Image 2026-01-30 at 19.59.13 (2)-800w.jpeg 800w, images/WhatsApp Image 2026-01-30 at 19.59.13 (2)-1200w.jpeg 1200w"
+                                sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    </div>
+                    <div class="story-card">
+                            <img loading="lazy" src="images/WhatsApp Image 2026-01-30 at 19.59.14 (3).jpeg" alt="İlk Gülüş"
+                                data-srcset="images/WhatsApp Image 2026-01-30 at 19.59.14 (3)-480w.jpeg 480w, images/WhatsApp Image 2026-01-30 at 19.59.14 (3)-800w.jpeg 800w, images/WhatsApp Image 2026-01-30 at 19.59.14 (3)-1200w.jpeg 1200w"
+                                sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    </div>
+                    <div class="story-card">
+                            <img loading="lazy" src="images/WhatsApp Image 2026-01-30 at 19.59.14.jpeg" alt="Rahat Köşemiz"
+                                data-srcset="images/WhatsApp Image 2026-01-30 at 19.59.14-480w.jpeg 480w, images/WhatsApp Image 2026-01-30 at 19.59.14-800w.jpeg 800w, images/WhatsApp Image 2026-01-30 at 19.59.14-1200w.jpeg 1200w"
+                                sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    </div>
+                    <div class="story-card">
+                            <img loading="lazy" src="images/WhatsApp Image 2026-01-31 at 22.17.56 (1).jpeg" alt="Macera Bekliyor"
+                                data-srcset="images/WhatsApp Image 2026-01-31 at 22.17.56 (1)-480w.jpeg 480w, images/WhatsApp Image 2026-01-31 at 22.17.56 (1)-800w.jpeg 800w, images/WhatsApp Image 2026-01-31 at 22.17.56 (1)-1200w.jpeg 1200w"
+                                sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        // 3. CURSOR
-        const cursor = document.getElementById('cursor');
-        const follower = document.getElementById('cursor-follower');
-        document.addEventListener('mousemove', e => {
-            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-            follower.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 20}px)`;
-        });
+    <!-- Gallery Section -->
+    <section class="gallery" id="gallery">
+        <div class="gallery-container">
+            <h2 class="section-title">Bizim Anlarımız</h2>
+            <div class="gallery-grid">
+                    <div class="gallery-item">
+                    <img loading="lazy" src="images/WhatsApp Image 2026-01-30 at 19.59.13 (2).jpeg" alt="Gün Batımı"
+                        data-srcset="images/WhatsApp Image 2026-01-30 at 19.59.13 (2)-480w.jpeg 480w, images/WhatsApp Image 2026-01-30 at 19.59.13 (2)-800w.jpeg 800w, images/WhatsApp Image 2026-01-30 at 19.59.13 (2)-1200w.jpeg 1200w"
+                        sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    <div class="gallery-overlay">
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img loading="lazy" src="images/WhatsApp Image 2026-01-30 at 19.59.14 (3).jpeg" alt="Saf Mutluluk"
+                        data-srcset="images/WhatsApp Image 2026-01-30 at 19.59.14 (3)-480w.jpeg 480w, images/WhatsApp Image 2026-01-30 at 19.59.14 (3)-800w.jpeg 800w, images/WhatsApp Image 2026-01-30 at 19.59.14 (3)-1200w.jpeg 1200w"
+                        sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    <div class="gallery-overlay">
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img loading="lazy" src="images/WhatsApp Image 2026-01-30 at 19.59.14.jpeg" alt="Sonsuza Dek Sen"
+                        data-srcset="images/WhatsApp Image 2026-01-30 at 19.59.14-480w.jpeg 480w, images/WhatsApp Image 2026-01-30 at 19.59.14-800w.jpeg 800w, images/WhatsApp Image 2026-01-30 at 19.59.14-1200w.jpeg 1200w"
+                        sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    <div class="gallery-overlay">
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img loading="lazy" src="images/WhatsApp Image 2026-01-31 at 22.17.56 (1).jpeg" alt="Bizim Macera"
+                        data-srcset="images/WhatsApp Image 2026-01-31 at 22.17.56 (1)-480w.jpeg 480w, images/WhatsApp Image 2026-01-31 at 22.17.56 (1)-800w.jpeg 800w, images/WhatsApp Image 2026-01-31 at 22.17.56 (1)-1200w.jpeg 1200w"
+                        sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    <div class="gallery-overlay">
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img loading="lazy" src="images/WhatsApp Image 2026-01-31 at 22.17.56.jpeg" alt="Hassas Anlar"
+                        data-srcset="images/WhatsApp Image 2026-01-31 at 22.17.56-480w.jpeg 480w, images/WhatsApp Image 2026-01-31 at 22.17.56-800w.jpeg 800w, images/WhatsApp Image 2026-01-31 at 22.17.56-1200w.jpeg 1200w"
+                        sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    <div class="gallery-overlay">
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img loading="lazy" src="images/WhatsApp Image 2026-01-31 at 22.19.51 (1).jpeg" alt="Sonsuzluk Başlıyor"
+                        data-srcset="images/WhatsApp Image 2026-01-31 at 22.19.51 (1)-480w.jpeg 480w, images/WhatsApp Image 2026-01-31 at 22.19.51 (1)-800w.jpeg 800w, images/WhatsApp Image 2026-01-31 at 22.19.51 (1)-1200w.jpeg 1200w"
+                        sizes="(max-width:480px) 100vw, (max-width:768px) 50vw, 33vw">
+                    <div class="gallery-overlay">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        // 4. REVEAL OBSERVER
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('active');
-            });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    </script>
+    <!-- Letter Section -->
+    <section class="letter" id="letter">
+        <div class="letter-container">
+            <h2 class="section-title section-title-interactive" id="letterTitle">Sana Bir Mektup 💌</h2>
+            
+            <!-- Envelope Design -->
+            <div class="envelope-box" id="envelopeBox">
+                <div class="envelope-back">
+                    <div class="back-text">Benimle Sonsuza Dek</div>
+                    <div class="back-decoration">✦ ❤️ ✦</div>
+                </div>
+                <div class="envelope-flap"></div>
+                <div class="envelope-body">
+                    <div class="envelope-center">
+                        <span class="envelope-emoji">💌</span>
+                    </div>
+                    <div class="envelope-stamp">2026</div>
+                </div>
+            </div>
+            
+            <!-- Letter Content -->
+            <div class="letter-content" id="letterContent">
+                <button class="letter-close" id="letterClose" aria-label="Mektubu kapat">✕</button>
+                <div class="letter-paper">
+                    <p class="letter-line">Canım Sevgilim,</p>
+                    <p class="letter-line">Bu satırları okurken yüzündeki o bildiğim gülümsemenin oluştuğunu hayal ederek yazıyorum. Biliyorum, seni ne kadar çok sevdiğimi zaten her anında, her bakışımda hissediyorsun; ama bazen bunu kelimelere dökmek, bu duyguyu ölümsüzleştirmek istedim.</p>
+                    <p class="letter-line">Hayatıma girdiğin o günden beri dünya benim için daha yaşanılır bir yer oldu. Seninle geçen zamanın tek bir saniyesi bile boşa gitmiş değil. Güne senin mesajınla başlamanın verdiği o tatlı huzurdan, yollarda hiç konuşmadan el ele yürüyüşlerimize kadar her an, benim en kıymetli hazinem oldu.</p>
+                    <p class="letter-line">Sen benim için sadece bir sevgili değilsin; sen benim huzurum, en güvenli limanım ve her gün yeniden dönmek istediğim evimsin. Seninle güldüğümde hayatın yükü hafifliyor, seninle ağladığımda ise her şeyin üstesinden gelebileceğimi biliyorum. Bana sevmeyi, sevilmeyi; ama en önemlisi, hiçbir şart koşmadan birine ait olabilmenin güzelliğini öğrettin.</p>
+                    <p class="letter-line">Üçüncü yılımıza doğru adım adım yürürken, geriye dönüp baktığımda gördüğüm tek şey "iyi ki"lerle dolu koca bir aşk. Seni benimle karşılaştıran tesadüflere, yollarımızı birleştiren hayata her gün şükrediyorum.</p>
+                    <p class="letter-line">Yol arkadaşım, en yakın dostum, kalbimin sükuneti... Önümüzdeki tüm yıllarda, tüm yollarda yine seninle, yine biz olarak kalmak dileğiyle.</p>
+                    <p class="letter-signature letter-line">Seni çok seviyorum.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Bizim Sonsuz Yolculuğumuz. Tüm anılar değerli, tüm aşk sonsuz.</p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
